@@ -132,6 +132,6 @@ if __name__ == "__main__":
     # Don't do this! This creates a built-in Python list and if you use
     # one you'll lose points.
     forbidden_list = [None] * 10
-
+    print(arr)
     print(type(arr))
     print(type(forbidden_list))

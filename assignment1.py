@@ -1,8 +1,8 @@
-# Name:
-# OSU Email:
+# Name: Raul Preciado
+# OSU Email: preciadr@oregonstate.edu
 # Course: CS261 - Data Structures
-# Assignment:
-# Due Date:
+# Assignment: 1 - Python Fundamentals Review
+# Due Date: 10/23/2023
 # Description:
 
 
@@ -14,25 +14,69 @@ from static_array import *
 
 def min_max(arr: StaticArray) -> tuple[int, int]:
     """
-    TODO: Write this implementation
+    Takes a StaticArray as a parameter and outputs a tuple with the min as
+     the first value and max as the second value
     """
-    pass
+    max = arr.get(0)
+    min = max
+
+    for i in range(arr.length()):
+        if arr[i] > max:
+            max = arr[i]
+        if arr[i] < min:
+            min = arr[i]
+
+    return min, max
+
 
 # ------------------- PROBLEM 2 - FIZZ_BUZZ ---------------------------------
 
 def fizz_buzz(arr: StaticArray) -> StaticArray:
     """
-    TODO: Write this implementation
+    Takes a StaticArray as a parameter and returns a second StaticArray object in which the string 'fizz'
+    replaces all numbers divisible by 3, 'buzz' replaces all numbers divisible by 5 and 'fizzbuzz' replaces
+    all numbers divisible by 3 and 5.
     """
-    pass
+    new_arr = StaticArray(arr.length())
+
+    for i in range(arr.length()):
+
+        num = arr.get(i)
+
+        if (num % 3 == 0) and (num % 5 == 0):
+            new_arr.set(i, 'fizzbuzz')
+
+        elif (num % 3 == 0) and (num % 5 != 0):
+            new_arr.set(i, 'fizz')
+
+        elif (num % 5 == 0) and (num % 3 != 0):
+            new_arr.set(i, 'buzz')
+
+        elif (num % 3 != 0) and (num % 5 != 0):
+            new_arr.set(i, num)
+
+    return new_arr
+
+
 
 # ------------------- PROBLEM 3 - REVERSE -----------------------------------
 
 def reverse(arr: StaticArray) -> None:
     """
-    TODO: Write this implementation
+    Takes a StaticArray object as a parameter and reverses the order of the original StaticArray
     """
-    pass
+    counter = 0
+    length = arr.length()
+
+    # The while loop only needs to iterate through the first half of the array since it is swapping
+    # the values that are equidistant from the center at each iteration
+
+    while counter < length // 2:
+        temp = arr.get(counter)
+        arr.set(counter, arr.get(length - 1 - counter))
+        arr.set(length - 1 - counter, temp)
+        counter += 1
+
 
 # ------------------- PROBLEM 4 - ROTATE ------------------------------------
 
@@ -40,7 +84,31 @@ def rotate(arr: StaticArray, steps: int) -> StaticArray:
     """
     TODO: Write this implementation
     """
-    pass
+    new_arr = StaticArray(arr.length())
+    length = arr.length()
+
+
+    if ((steps ** 2) ** 0.5) >= length:
+        steps = steps % length
+
+    for i in range(length):
+
+        pot_steps = i + steps
+
+        if i + steps > length - 1:
+            new_i = i + steps - length
+            new_arr.set(new_i, arr[i])
+            continue
+
+        if i + steps < 0:
+            new_i = length - 1 - i
+            new_arr.set(new_i, arr[i])
+            continue
+
+        new_arr.set(i + steps, arr[i])
+
+    return new_arr
+
 
 # ------------------- PROBLEM 5 - SA_RANGE ----------------------------------
 
@@ -281,3 +349,10 @@ if __name__ == "__main__":
     print(f'Started sorting large array of {array_size} elements')
     result = sorted_squares(arr)
     print(f'Finished sorting large array of {array_size} elements')
+
+print("")
+test_arr = StaticArray(5)
+for i in range(5):
+    test_arr.set(i, i ** 2)
+
+print(test_arr)
