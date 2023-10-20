@@ -82,30 +82,34 @@ def reverse(arr: StaticArray) -> None:
 
 def rotate(arr: StaticArray, steps: int) -> StaticArray:
     """
-    TODO: Write this implementation
+    Takes a StaticArray object and an integer as parameters and returns a new array with each value's index shifted
+    right or left depending on the integer representing steps.
     """
     new_arr = StaticArray(arr.length())
     length = arr.length()
 
-
+    # Takes the absolute value of the steps and if it is greater than the length of the array, it reduces it
+    # to a lower number but equivalent in terms of the wrap around effect
     if ((steps ** 2) ** 0.5) >= length:
         steps = steps % length
 
     for i in range(length):
+        # the variable 'assigned' acts as an indicator that the index in question has been assigned a place
+        # in the new array. This is a workaround for using continue.
+        assigned = False
 
-        pot_steps = i + steps
-
-        if i + steps > length - 1:
+        if assigned is False and i + steps > length - 1:
             new_i = i + steps - length
             new_arr.set(new_i, arr[i])
-            continue
+            assigned = True
 
-        if i + steps < 0:
+        if assigned is False and i + steps < 0:
             new_i = length - 1 - i
             new_arr.set(new_i, arr[i])
-            continue
+            assigned = True
 
-        new_arr.set(i + steps, arr[i])
+        if assigned is False:
+            new_arr.set(i + steps, arr[i])
 
     return new_arr
 
