@@ -3,7 +3,8 @@
 # Course: CS261 - Data Structures
 # Assignment: 1 - Python Fundamentals Review
 # Due Date: 10/23/2023
-# Description:
+# Description: This program contains a total of 10 different functions all with the purpose of writing algorithms that
+#  work on Static Arrays and are efficient - O(n) with the exception of count_sort which is O(n + k).
 
 
 import random
@@ -58,7 +59,6 @@ def fizz_buzz(arr: StaticArray) -> StaticArray:
     return new_arr
 
 
-
 # ------------------- PROBLEM 3 - REVERSE -----------------------------------
 
 def reverse(arr: StaticArray) -> None:
@@ -103,8 +103,11 @@ def rotate(arr: StaticArray, steps: int) -> StaticArray:
             new_arr.set(new_i, arr[i])
             assigned = True
 
+            # after a condition is met to assign another value in the array, we change the assigned value to True to
+            # maintain a single assignment per i
+
         if assigned is False and i + steps < 0:
-            new_i = length - 1 - i
+            new_i = length + (i + steps)
             new_arr.set(new_i, arr[i])
             assigned = True
 
@@ -118,245 +121,295 @@ def rotate(arr: StaticArray, steps: int) -> StaticArray:
 
 def sa_range(start: int, end: int) -> StaticArray:
     """
-    TODO: Write this implementation
+    Takes two integers as parameters and returns a StaticArray with all integers between and including
+    start and stop.
     """
-    pass
+    temp_start = start
+    arr_size = 1
+
+    if start == end:
+        arr = StaticArray(1)
+        arr.set(0, start)
+        return arr
+
+    while temp_start != end:
+        if temp_start < end:
+            arr_size += 1
+            temp_start += 1
+        if temp_start > end:
+            arr_size += 1
+            temp_start -= 1
+
+    arr = StaticArray(arr_size)
+    temp_start = start
+
+    for i in range(arr_size):
+        if start < end:
+            arr.set(i, temp_start)
+            temp_start += 1
+
+        if start > end:
+            arr.set(i, temp_start)
+            temp_start -= 1
+
+    return arr
+
 
 # ------------------- PROBLEM 6 - IS_SORTED ---------------------------------
-
 def is_sorted(arr: StaticArray) -> int:
     """
-    TODO: Write this implementation
+    Takes a StaticArray object as a parameter and returns a value describing how the array is sorted.
+    1 : the array is sorted in strictly ascending order
+    -1: the array is sorted in strictly descending order
+    0: otherwise (not strictly sorted in any direction)
     """
-    pass
+    length = arr.length()
+
+    if length == 1:
+        return 1
+
+    val = arr.get(0)
+
+    # once the ascend/descend boolean expressions are set, they must remain unchanged and True or else a 0 will return
+    if val > arr[1]:
+        descend = True
+        ascend = False
+
+    if val < arr[1]:
+        ascend = True
+        descend = False
+
+    for i in range(1, length):
+        next_val = arr[i]
+
+        if val == next_val:
+            return 0
+        # each comparison checks to see if the ascend/descend values are consistent with the comparison
+        if val > next_val:
+            if descend is False:
+                return 0
+            val = arr[i]
+            ascend = False
+
+        if val < next_val:
+            if ascend is False:
+                return 0
+            val = arr[i]
+            descend = False
+
+    if ascend and not descend:
+        return 1
+    if descend and not ascend:
+        return -1
+
+    return 0
+
 
 # ------------------- PROBLEM 7 - FIND_MODE -----------------------------------
 
 def find_mode(arr: StaticArray) -> tuple[object, int]:
     """
-    TODO: Write this implementation
+    Takes a sorted array as a parameter and returns a tuple consisting of the mode of the array as the first value
+    and the number of times that element appears within the array. It is not restricted to integers.
     """
-    pass
+    # Since the array is sorted, it is possible to traverse through the array keeping track of the item and count
+    # and comparing it to each new value and count. When a new high count is reached, the second value and count are
+    # zeroed out.
+    length = arr.length()
+    temp_a = arr[0]
+    temp_b = temp_a
+    temp_a_count = 0
+    temp_b_count = 0
+
+    for i in range(length):
+        temp_val = arr[i]
+
+        if temp_a == temp_val:
+            temp_a_count += 1
+
+        if temp_a != temp_val and temp_b == temp_val:
+            temp_b_count += 1
+
+        if temp_a != temp_val and temp_b != temp_val:
+            temp_b = temp_val
+            temp_b_count = 0
+            temp_b_count += 1
+
+        if temp_b_count > temp_a_count:
+            temp_a = temp_b
+            temp_a_count = temp_b_count
+
+    return temp_a, temp_a_count
+
 
 # ------------------- PROBLEM 8 - REMOVE_DUPLICATES -------------------------
 
 def remove_duplicates(arr: StaticArray) -> StaticArray:
     """
-    TODO: Write this implementation
+    Takes a sorted Array and returns a new array that is sorted in the same way and
+    with all the duplicates removed.
     """
-    pass
+    length = arr.length()
+    last_val = arr[0]
+    duplicates = 0
+
+    # the for loop below iterates once through the array to count how many duplicates exist in the array
+    for i in range(1, length):
+        curr_val = arr[i]
+        if curr_val == last_val:
+            duplicates += 1
+        last_val = curr_val
+
+    new_length = length - duplicates
+    new_arr = StaticArray(new_length)
+    new_arr[0] = arr[0]
+    last_val = arr[0]
+    new_index = 1
+    for i in range(1, length):
+        # the expression ' arr[i] != last_val is responsible for ensuring duplicates are left out
+        if new_index < new_length and arr[i] != last_val:
+            current_val = arr[i]
+            new_arr[new_index] = current_val
+            last_val = current_val
+            new_index += 1
+
+    return new_arr
+
 
 # ------------------- PROBLEM 9 - COUNT_SORT --------------------------------
 
 def count_sort(arr: StaticArray) -> StaticArray:
     """
-    TODO: Write this implementation
+    Takes a StaticArray object as a parameter and
     """
-    pass
+    length = arr.length()
+    minmax = min_max(arr)
+    abs_min = abs(minmax[0])
+    # helper_range helps get the length of the range of values
+    helper_range = sa_range(minmax[0], minmax[1])
+    # each index in count_range corresponds to its value in the array. The value that each index accumulates corresponds
+    # to the number of times that number appears in the array.
+    count_range = StaticArray(helper_range.length() + 1)
+    count_range_length = count_range.length()
+    result = StaticArray(length)
+
+    # the for loop below accounts for how negative values are handled in the count_range array since negative indexes
+    # don't exist in the StaticArray objects
+    for i in range(length):
+        value = arr[i]
+        if minmax[0] < 0:
+            index = value + abs_min
+        if minmax[0] > 0:
+            index = value - abs_min
+
+        if count_range[index] is None:
+            count_range[index] = 0
+        count_range[index] += 1
+
+    # real_index is the starting index for populating the new Array
+    real_index = length - 1
+
+    for i in range(count_range_length - 1):
+        # A None value indicates that the number didn't occur at all in the array, so we skip it.
+        if count_range[i] is None:
+            continue
+
+        freq = count_range[i]
+        if minmax[0] < 0:
+            value = i - abs_min
+        if minmax[0] > 0:
+            value = i + abs_min
+
+        # this while loop adds the value at hand to the new array for as many times as was listed in the count_range val
+        while freq > 0:
+            result[real_index] = value
+            real_index -= 1
+            freq -= 1
+
+    return result
+
 
 # ------------------- PROBLEM 10 - SORTED SQUARES ---------------------------
 
+def min_max_helper(arr: StaticArray) -> tuple[int, int]:
+    """
+    Takes a StaticArray as a parameter and outputs a tuple with the absolute min as the first value,
+    the absolute max as the second value and the index of the absolute min as the third value
+    """
+    max = arr.get(0)
+    min = max
+    min_ind = 0
+
+    for i in range(arr.length()):
+        if abs(arr[i]) > abs(max):
+            max = arr[i]
+        if abs(arr[i]) < abs(min):
+            min = arr[i]
+            min_ind = i
+
+    return min, max, int(min_ind)
+
 def sorted_squares(arr: StaticArray) -> StaticArray:
     """
-    TODO: Write this implementation
+    Takes a sorted array as a parameter and returns a new array with the sorted values of the squares
+    of the original array
     """
-    pass
+    length = arr.length()
+    new_array = StaticArray(length)
+    min_max_help = min_max_helper(arr)
+    min_index = min_max_help[2]
+    working_array = StaticArray(length)
 
-# ------------------- BASIC TESTING -----------------------------------------
+    for i in range(length):
+        working_array[i] = arr[i]
 
+    if min_index == length - 1:
+        reverse(working_array)
+        min_max_help = min_max_helper(working_array)
+        min_index = min_max_help[2]
 
-if __name__ == "__main__":
+    if min_index == 0:
+        for i in range(length):
+            new_array[i] = working_array[i] ** 2
+        return new_array
+    # left will be the index for the value to the left of the starting point
+    # right will be the index for the right value
+    left = min_index - 1
+    right = min_index + 1
+    # count will serve as the next index in the new array that needs to be filled.
+    count = 0
+    new_array[count] = working_array[min_index] ** 2
+    count += 1
 
-    print('\n# min_max example 1')
-    arr = StaticArray(5)
-    for i, value in enumerate([7, 8, 6, -5, 4]):
-        arr[i] = value
-    print(arr)
-    result = min_max(arr)
-    if result:
-        print(f"Min: {result[0]: 3}, Max: {result[1]}")
-    else:
-        print("min_max() not yet implemented")
+    # This algorithm works by starting from the index of the smallest absolute value and comparing the numbers to left
+    # and the right to see which number gets inserted next.
 
-    print('\n# min_max example 2')
-    arr = StaticArray(1)
-    arr[0] = 100
-    print(arr)
-    result = min_max(arr)
-    if result:
-        print(f"Min: {result[0]}, Max: {result[1]}")
-    else:
-        print("min_max() not yet implemented")
+    while left >= 0 and right <= length - 1:
+        right_val = working_array[right]
+        left_val = working_array[left]
 
-    print('\n# min_max example 3')
-    test_cases = (
-        [3, 3, 3],
-        [-10, -30, -5, 0, -10],
-        [25, 50, 0, 10],
-    )
-    for case in test_cases:
-        arr = StaticArray(len(case))
-        for i, value in enumerate(case):
-            arr[i] = value
-        print(arr)
-        result = min_max(arr)
-        if result:
-            print(f"Min: {result[0]: 3}, Max: {result[1]}")
-        else:
-            print("min_max() not yet implemented")
+        if abs(left_val) <= abs(right_val):
+            new_array[count] = left_val ** 2
+            left -= 1
+            count += 1
+        if abs(left_val) > abs(right_val):
+            new_array[count] = right_val ** 2
+            right += 1
+            count += 1
+    # if we reach the end point of the array on the right side
+    while left >= 0 and right > length - 1:
+        left_val = working_array[left]
+        new_array[count] = left_val ** 2
+        left -= 1
+        count += 1
+    # if we reach the end point of the array on the left side
+    while left <= 0 and right < length - 1:
+        right_val = working_array[right]
+        new_array[count] = right_val ** 2
+        count += 1
+        right += 1
+    # if for some reason the last index doesn't get filled
+    if new_array[length - 1] is None:
+        new_array[count] = min_max_help[1] ** 2
 
-    print('\n# fizz_buzz example 1')
-    source = [_ for _ in range(-5, 20, 4)]
-    arr = StaticArray(len(source))
-    for i, value in enumerate(source):
-        arr[i] = value
-    print(fizz_buzz(arr))
-    print(arr)
-
-    print('\n# reverse example 1')
-    source = [_ for _ in range(-20, 20, 7)]
-    arr = StaticArray(len(source))
-    for i, value in enumerate(source):
-        arr.set(i, value)
-    print(arr)
-    reverse(arr)
-    print(arr)
-    reverse(arr)
-    print(arr)
-
-    print('\n# rotate example 1')
-    source = [_ for _ in range(-20, 20, 7)]
-    arr = StaticArray(len(source))
-    for i, value in enumerate(source):
-        arr.set(i, value)
-    print(arr)
-    for steps in [1, 2, 0, -1, -2, 28, -100, 2 ** 28, -2 ** 31]:
-        space = " " if steps >= 0 else ""
-        print(f"{rotate(arr, steps)} {space}{steps}")
-    print(arr)
-
-    print('\n# rotate example 2')
-    array_size = 1_000_000
-    source = [random.randint(-10 ** 9, 10 ** 9) for _ in range(array_size)]
-    arr = StaticArray(len(source))
-    for i, value in enumerate(source):
-        arr[i] = value
-    print(f'Started rotating large array of {array_size} elements')
-    rotate(arr, 3 ** 14)
-    rotate(arr, -3 ** 15)
-    print(f'Finished rotating large array of {array_size} elements')
-
-    print('\n# sa_range example 1')
-    cases = [
-        (1, 3), (-1, 2), (0, 0), (0, -3),
-        (-95, -89), (-89, -95)]
-    for start, end in cases:
-        print(f"Start: {start: 4}, End: {end: 4}, {sa_range(start, end)}")
-
-    print('\n# is_sorted example 1')
-    test_cases = (
-        [-100, -8, 0, 2, 3, 10, 20, 100],
-        ['A', 'B', 'Z', 'a', 'z'],
-        ['Z', 'T', 'K', 'A', '5'],
-        [1, 3, -10, 20, -30, 0],
-        [-10, 0, 0, 10, 20, 30],
-        [100, 90, 0, -90, -200],
-        ['apple']
-    )
-    for case in test_cases:
-        arr = StaticArray(len(case))
-        for i, value in enumerate(case):
-            arr[i] = value
-        result = is_sorted(arr)
-        space = "  " if result and result >= 0 else " "
-        print(f"Result:{space}{result}, {arr}")
-
-    print('\n# find_mode example 1')
-    test_cases = (
-        [1, 20, 30, 40, 500, 500, 500],
-        [2, 2, 2, 2, 1, 1, 1, 1],
-        ["zebra", "sloth", "otter", "otter", "moose", "koala"],
-        ["Albania", "Belgium", "Chile", "Denmark", "Egypt", "Fiji"]
-    )
-    for case in test_cases:
-        arr = StaticArray(len(case))
-        for i, value in enumerate(case):
-            arr[i] = value
-
-        result = find_mode(arr)
-        if result:
-            print(f"{arr}\nMode: {result[0]}, Frequency: {result[1]}\n")
-        else:
-            print("find_mode() not yet implemented\n")
-
-    print('# remove_duplicates example 1')
-    test_cases = (
-        [1], [1, 2], [1, 1, 2], [1, 20, 30, 40, 500, 500, 500],
-        [5, 5, 5, 4, 4, 3, 2, 1, 1], [1, 1, 1, 1, 2, 2, 2, 2]
-    )
-    for case in test_cases:
-        arr = StaticArray(len(case))
-        for i, value in enumerate(case):
-            arr[i] = value
-        print(arr)
-        print(remove_duplicates(arr))
-    print(arr)
-
-    print('\n# count_sort example 1')
-    test_cases = (
-        [1, 2, 4, 3, 5], [5, 4, 3, 2, 1], [0, -5, -3, -4, -2, -1, 0],
-        [-3, -2, -1, 0, 1, 2, 3], [1, 2, 3, 4, 3, 2, 1, 5, 5, 2, 3, 1],
-        [10100, 10721, 10320, 10998], [-100320, -100450, -100999, -100001],
-    )
-    for case in test_cases:
-        arr = StaticArray(len(case))
-        for i, value in enumerate(case):
-            arr[i] = value
-        before = arr if len(case) < 50 else 'Started sorting large array'
-        print(f"Before: {before}")
-        result = count_sort(arr)
-        after = result if len(case) < 50 else 'Finished sorting large array'
-        print(f"After : {after}")
-
-    print('\n# count_sort example 2')
-    array_size = 5_000_000
-    min_val = random.randint(-1_000_000_000, 1_000_000_000 - 998)
-    max_val = min_val + 998
-    case = [random.randint(min_val, max_val) for _ in range(array_size)]
-    arr = StaticArray(len(case))
-    for i, value in enumerate(case):
-        arr[i] = value
-    print(f'Started sorting large array of {array_size} elements')
-    result = count_sort(arr)
-    print(f'Finished sorting large array of {array_size} elements')
-
-    print('\n# sorted_squares example 1')
-    test_cases = (
-        [1, 2, 3, 4, 5],
-        [-5, -4, -3, -2, -1, 0],
-        [-3, -2, -2, 0, 1, 2, 3],
-    )
-    for case in test_cases:
-        arr = StaticArray(len(case))
-        for i, value in enumerate(sorted(case)):
-            arr[i] = value
-        print(arr)
-        result = sorted_squares(arr)
-        print(result)
-
-    print('\n# sorted_squares example 2')
-    array_size = 5_000_000
-    case = [random.randint(-10 ** 9, 10 ** 9) for _ in range(array_size)]
-    arr = StaticArray(len(case))
-    for i, value in enumerate(sorted(case)):
-        arr[i] = value
-    print(f'Started sorting large array of {array_size} elements')
-    result = sorted_squares(arr)
-    print(f'Finished sorting large array of {array_size} elements')
-
-print("")
-test_arr = StaticArray(5)
-for i in range(5):
-    test_arr.set(i, i ** 2)
-
-print(test_arr)
+    return new_array
